@@ -24,7 +24,6 @@ import java.util.*;
 public class MainActivity extends AppCompatActivity {
 
     private String cityName;
-    private String dateTemp[];
     private String weather[];
 
     @Override
@@ -44,9 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... strings) {
-            cityName = "Chongqing";
-            String stringUrl = "http://api.openweathermap.org/data/2.5/forecast?q=";
-            stringUrl += cityName + ",cn&mode=json&APPID=56bf9b35eec17e6d1f754768a5bf70eb";
+            weather = new String[]{"Rai", "Rai", "Clo", "Win", "Cle"};
+            String stringUrl = "http://api.openweathermap.org/data/2.5/forecast?q=Chongqing,cn&mode=json&APPID=56bf9b35eec17e6d1f754768a5bf70eb";
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader;
@@ -71,24 +69,21 @@ public class MainActivity extends AppCompatActivity {
                 String line, test;
                 while ((line = reader.readLine()) != null) {
                     // Mainly needed for debugging
-
-                    dateTemp = new String[5];
                     final Calendar c = Calendar.getInstance();
                     c.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd ");
-                    System.out.println(dateFormat.format(Calendar.getInstance().getTime()));
+
                     String hour = String.valueOf(c.get(Calendar.HOUR_OF_DAY) / 3 * 3);
                     if (Integer.valueOf(hour) < 10) {
                         hour = "0" + hour;
                     }
                     String mes = dateFormat.format(Calendar.getInstance().getTime()) + hour;
-                    int index1 = line.indexOf(mes) - 303;
+                    int index1 = line.indexOf("temp", line.indexOf(mes) - 320) + 6;
+                    System.out.println(line.substring(index1, index1 + 6));
                     test = String.valueOf((int) (Double.valueOf(line.substring(index1, index1 + 6)) - 273.15));
                     int index2 = line.indexOf("main", index1);
-                    weather = new String[5];
                     weather[0] = line.substring(index2 + 7, index2 + 10);
-                    System.out.println(weather[0]);
-                    //System.out.println(test);
+                    cityName = "Chongqing";
                     int day = c.get(Calendar.DATE);
                     for (int i = 1; i <= 4; ++i) {
                         c.set(Calendar.DATE, day + i);
@@ -101,11 +96,7 @@ public class MainActivity extends AppCompatActivity {
                         index1 = line.indexOf(mes) - 303;
                         index2 = line.indexOf("main", index1);
                         weather[i] = line.substring(index2 + 7, index2 + 10);
-                        System.out.println(dateFormat.format(c.getTime()));
-                        System.out.println(weather[i]);
                     }
-
-
                     buffer.append(test + "\n");
                 }
 
@@ -130,9 +121,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String temperature) {
             //Update the temperature displayed
-            ((TextView) findViewById(R.id.temperature_of_the_day)).setText(temperature);
+            if (temperature != null) {
+                ((TextView) findViewById(R.id.temperature_of_the_day)).setText(temperature);
+            }
             //Update the location displayed
-            ((TextView) findViewById(R.id.tv_location)).setText(cityName);
+            if (cityName != null) {
+                ((TextView) findViewById(R.id.tv_location)).setText(cityName);
+            }
             //Update the date displayed
             Calendar.getInstance().setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
             String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
