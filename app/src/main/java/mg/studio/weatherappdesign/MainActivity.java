@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -17,11 +18,14 @@ import java.net.URL;
 
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class MainActivity extends AppCompatActivity {
 
     private String cityName;
+    private String dateTemp[];
+    private String weather[];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 URL url = new URL(stringUrl);
-
                 // Create the request to get the information from the server, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
 
@@ -65,10 +68,45 @@ public class MainActivity extends AppCompatActivity {
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
 
-                String line;
+                String line, test;
                 while ((line = reader.readLine()) != null) {
                     // Mainly needed for debugging
-                    buffer.append(line + "\n");
+
+                    dateTemp = new String[5];
+                    final Calendar c = Calendar.getInstance();
+                    c.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd ");
+                    System.out.println(dateFormat.format(Calendar.getInstance().getTime()));
+                    String hour = String.valueOf(c.get(Calendar.HOUR_OF_DAY) / 3 * 3);
+                    if (Integer.valueOf(hour) < 10) {
+                        hour = "0" + hour;
+                    }
+                    String mes = dateFormat.format(Calendar.getInstance().getTime()) + hour;
+                    int index1 = line.indexOf(mes) - 303;
+                    test = String.valueOf((int) (Double.valueOf(line.substring(index1, index1 + 6)) - 273.15));
+                    int index2 = line.indexOf("main", index1);
+                    weather = new String[5];
+                    weather[0] = line.substring(index2 + 7, index2 + 10);
+                    System.out.println(weather[0]);
+                    //System.out.println(test);
+                    int day = c.get(Calendar.DATE);
+                    for (int i = 1; i <= 4; ++i) {
+                        c.set(Calendar.DATE, day + i);
+                        dateFormat = new SimpleDateFormat("yyyy-MM-dd ");
+                        hour = String.valueOf(c.get(Calendar.HOUR_OF_DAY) / 3 * 3);
+                        if (Integer.valueOf(hour) < 10) {
+                            hour = "0" + hour;
+                        }
+                        mes = dateFormat.format(c.getTime()) + hour;
+                        index1 = line.indexOf(mes) - 303;
+                        index2 = line.indexOf("main", index1);
+                        weather[i] = line.substring(index2 + 7, index2 + 10);
+                        System.out.println(dateFormat.format(c.getTime()));
+                        System.out.println(weather[i]);
+                    }
+
+
+                    buffer.append(test + "\n");
                 }
 
                 if (buffer.length() == 0) {
@@ -115,6 +153,23 @@ public class MainActivity extends AppCompatActivity {
             ((TextView) findViewById(R.id.tv_day2)).setText(weekValue[(week + 2) % 7].substring(0, 3));
             ((TextView) findViewById(R.id.tv_day3)).setText(weekValue[(week + 3) % 7].substring(0, 3));
             ((TextView) findViewById(R.id.tv_day4)).setText(weekValue[(week + 4) % 7].substring(0, 3));
+            //Update the weather displayed
+            setWeatherIcon(R.id.img_weather_condition0, weather[0]);
+            setWeatherIcon(R.id.img_weather_condition1, weather[1]);
+            setWeatherIcon(R.id.img_weather_condition2, weather[2]);
+            setWeatherIcon(R.id.img_weather_condition3, weather[3]);
+            setWeatherIcon(R.id.img_weather_condition4, weather[4]);
+        }
+
+        protected void setWeatherIcon(int index, String wea) {
+            if (wea.equals("Cle"))
+                ((ImageView) findViewById(index)).setImageResource(R.drawable.sunny_small);
+            else if (wea.equals("Rai"))
+                ((ImageView) findViewById(index)).setImageResource(R.drawable.rainy_small);
+            else if (wea.equals("Clo"))
+                ((ImageView) findViewById(index)).setImageResource(R.drawable.partly_sunny_small);
+            else if (wea.equals("Win"))
+                ((ImageView) findViewById(index)).setImageResource(R.drawable.windy_small);
         }
     }
 }
