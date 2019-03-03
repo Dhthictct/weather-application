@@ -14,7 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void btnClick(View view) {
         new DownloadUpdate().execute();
+        Toast.makeText(MainActivity.this, "Information Has Updated", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... strings) {
-            String stringUrl = "http://mpianatra.com/Courses/info.txt";
+            String stringUrl = "http://api.openweathermap.org/data/2.5/forecast?q=Chongqing,cn&mode=json&APPID=aa3d744dc145ef9d350be4a80b16ecab";
             HttpURLConnection urlConnection = null;
             BufferedReader reader;
 
@@ -55,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
                     return null;
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
-
                 String line;
                 while ((line = reader.readLine()) != null) {
                     // Mainly needed for debugging
