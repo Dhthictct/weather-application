@@ -14,9 +14,14 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+
 import android.widget.Toast;
 
+import java.util.*;
+
 public class MainActivity extends AppCompatActivity {
+
+    private String cityName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +40,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... strings) {
-            String stringUrl = "http://api.openweathermap.org/data/2.5/forecast?q=Chongqing,cn&mode=json&APPID=aa3d744dc145ef9d350be4a80b16ecab";
+            cityName = "Chongqing";
+            String stringUrl = "http://api.openweathermap.org/data/2.5/forecast?q=";
+            stringUrl += cityName + ",cn&mode=json&APPID=56bf9b35eec17e6d1f754768a5bf70eb";
+
             HttpURLConnection urlConnection = null;
             BufferedReader reader;
 
@@ -56,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
                     return null;
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
+
                 String line;
                 while ((line = reader.readLine()) != null) {
                     // Mainly needed for debugging
@@ -84,6 +93,28 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String temperature) {
             //Update the temperature displayed
             ((TextView) findViewById(R.id.temperature_of_the_day)).setText(temperature);
+            //Update the location displayed
+            ((TextView) findViewById(R.id.tv_location)).setText(cityName);
+            //Update the date displayed
+            Calendar.getInstance().setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
+            String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+            String month = String.valueOf(Calendar.getInstance().get(Calendar.MONTH) + 1);
+            String day = String.valueOf(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+            if (Integer.parseInt(month) < 10) {
+                month = "0" + month;
+            }
+            if (Integer.parseInt(day) < 10) {
+                day = "0" + day;
+            }
+            ((TextView) findViewById(R.id.tv_date)).setText(day + '/' + month + '/' + year);
+            //Update the week displayed
+            String[] weekValue = {"SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"};
+            int week = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1;
+            ((TextView) findViewById(R.id.tv_day0)).setText(weekValue[week]);
+            ((TextView) findViewById(R.id.tv_day1)).setText(weekValue[(week + 1) % 7].substring(0, 3));
+            ((TextView) findViewById(R.id.tv_day2)).setText(weekValue[(week + 2) % 7].substring(0, 3));
+            ((TextView) findViewById(R.id.tv_day3)).setText(weekValue[(week + 3) % 7].substring(0, 3));
+            ((TextView) findViewById(R.id.tv_day4)).setText(weekValue[(week + 4) % 7].substring(0, 3));
         }
     }
 }
