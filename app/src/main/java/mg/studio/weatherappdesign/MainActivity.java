@@ -3,6 +3,7 @@ package mg.studio.weatherappdesign;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,16 +26,17 @@ public class MainActivity extends AppCompatActivity {
 
     private String cityName;
     private String weather[];
+    private boolean flag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        new DownloadUpdate().execute();
     }
 
     public void btnClick(View view) {
         new DownloadUpdate().execute();
-        Toast.makeText(MainActivity.this, "Information Has Updated", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -67,7 +69,9 @@ public class MainActivity extends AppCompatActivity {
                 reader = new BufferedReader(new InputStreamReader(inputStream));
 
                 String line, test;
+                flag = false;
                 while ((line = reader.readLine()) != null) {
+                    flag = true;
                     // Mainly needed for debugging
                     final Calendar c = Calendar.getInstance();
                     c.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
@@ -154,6 +158,11 @@ public class MainActivity extends AppCompatActivity {
             setWeatherIcon(R.id.img_weather_condition2, weather[2]);
             setWeatherIcon(R.id.img_weather_condition3, weather[3]);
             setWeatherIcon(R.id.img_weather_condition4, weather[4]);
+
+            if (flag) {
+                Toast.makeText(getBaseContext(), "Information Has Updated.", Toast.LENGTH_LONG).show();
+            } else
+                Toast.makeText(getBaseContext(), "Information Update Failed", Toast.LENGTH_LONG).show();
         }
 
         protected void setWeatherIcon(int index, String wea) {
@@ -167,4 +176,5 @@ public class MainActivity extends AppCompatActivity {
                 ((ImageView) findViewById(index)).setImageResource(R.drawable.windy_small);
         }
     }
+
 }
