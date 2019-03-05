@@ -1,5 +1,5 @@
-# Demo
-![Demo](demo.gif)
+# Weather Demo
+![Weather Demo](demo.gif)
 
 # Weather application
 
